@@ -15,11 +15,23 @@ enum SpinnerMessage {
 
 type FormatFn = Fn(&str, &str) -> String + Send + 'static;
 
+pub static DANCING_KIRBY: [&'static str; 8] = [
+"(>'-')>",
+"<('-'<)",
+"^('-')^",
+"<('-'<)",
+"(>'-')>",
+"<('-'<)",
+"^('-')^",
+"<('-'<)"
+];
+
 pub struct Spinner {
     status: String,
     types: Vec<&'static str>,
     rx: Receiver<SpinnerMessage>,
-    custom_out: Option<Box<FormatFn>>
+    custom_out: Option<Box<FormatFn>>,
+    step: Duration
 }
 
 pub struct SpinnerHandle {
@@ -70,7 +82,7 @@ impl Spinner {
                     let x = stdout();
                     x.lock().flush().unwrap();
                 }
-                thread::sleep(Duration::from_millis(100))
+                thread::sleep(sp.step)
             }
         });
 
@@ -78,30 +90,6 @@ impl Spinner {
             send: tx,
             handle: Some(th),
         }
-    }
-
-    pub fn new(st: String) -> SpinnerHandle {
-        let (tx, rx) = channel();
-        let sp = Spinner {
-            status: st,
-            types: vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"],
-            custom_out: None,
-            rx: rx,
-        };
-        Self::start(sp, tx)
-    }
-
-    pub fn new_custom<F>(st: String, f: F) -> SpinnerHandle
-        where F: Fn(&str, &str) -> String + Send + 'static
-    {
-        let (tx, rx) = channel();
-        let sp = Spinner {
-            status: st,
-            types: vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"],
-            custom_out: Some(Box::new(f)),
-            rx: rx,
-        };
-        Self::start(sp, tx)
     }
 }
 
@@ -139,5 +127,69 @@ impl SpinnerHandle {
         if let Some(th) = self.handle.take() {
             let _ = th.join();
         }
+    }
+}
+
+pub struct SpinnerBuilder {
+    msg: String,
+    spinner: Option<Vec<&'static str>>,
+    custom_format: Option<Box<FormatFn>>,
+    step: Option<Duration>,
+}
+
+impl SpinnerBuilder {
+    pub fn new(msg: String) -> Self {
+        SpinnerBuilder {
+            msg: msg,
+            spinner: None,
+            custom_format: None,
+            step: None,
+        }
+    }
+
+    pub fn spinner(mut self, sp: Vec<&'static str>) -> Self {
+        self.spinner = Some(sp);
+        self
+    }
+
+    pub fn step(mut self, st: Duration) -> Self {
+        self.step = Some(st);
+        self
+    }
+
+    pub fn format<F>(mut self, f: F) -> Self
+        where F: Fn(&str, &str) -> String + Send + 'static
+        {
+            self.custom_format = Some(Box::new(f));
+            self
+        }
+
+    pub fn start(self) -> SpinnerHandle {
+
+        let typ = {
+            if let Some(v) = self.spinner {
+                v
+            } else {
+                vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"]
+            }
+        };
+
+        let st = {
+            if let Some(s) = self.step {
+                s
+            } else {
+                Duration::from_millis(100)
+            }
+        };
+
+        let (tx, rx) = channel();
+        let sp = Spinner {
+            status: self.msg,
+            types: typ,
+            custom_out: self.custom_format,
+            rx: rx,
+            step: st,
+        };
+        Spinner::start(sp, tx)
     }
 }
