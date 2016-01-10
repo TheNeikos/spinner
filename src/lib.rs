@@ -13,11 +13,13 @@ enum SpinnerMessage {
     Message(String)
 }
 
+type FormatFn = Fn(&str, &str) -> String + Send + 'static;
+
 pub struct Spinner {
     status: String,
     types: Vec<&'static str>,
     rx: Receiver<SpinnerMessage>,
-    custom_out: Option<Box<Fn(&str, &str) + Send + 'static>>
+    custom_out: Option<Box<FormatFn>>
 }
 
 pub struct SpinnerHandle {
@@ -26,15 +28,8 @@ pub struct SpinnerHandle {
 }
 
 impl Spinner {
-    pub fn new(st: String) -> SpinnerHandle {
-        let (tx, rx) = channel();
-        let sp = Spinner {
-            status: st,
-            types: vec!["\\", "|", "/", "-", "\\"],
-            custom_out: None,
-            rx: rx,
-        };
 
+    fn start(sp: Spinner, tx: Sender<SpinnerMessage>) -> SpinnerHandle {
         let th = thread::spawn(move|| {
             let mut sp = sp;
             for i in sp.types.iter().cycle() {
@@ -67,9 +62,9 @@ impl Spinner {
                 if should_disc{ break; }
 
                 if let Some(ref cl) = sp.custom_out {
-                    cl(i, &sp.status[..]);
+                    print!("\r{}", cl(i, &sp.status[..]));
                 } else {
-                    print!("\r{}, {}", i, sp.status);
+                    print!("\r{} {}", i, sp.status);
                 }
                 {
                     let x = stdout();
@@ -83,6 +78,30 @@ impl Spinner {
             send: tx,
             handle: Some(th),
         }
+    }
+
+    pub fn new(st: String) -> SpinnerHandle {
+        let (tx, rx) = channel();
+        let sp = Spinner {
+            status: st,
+            types: vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"],
+            custom_out: None,
+            rx: rx,
+        };
+        Self::start(sp, tx)
+    }
+
+    pub fn new_custom<F>(st: String, f: F) -> SpinnerHandle
+        where F: Fn(&str, &str) -> String + Send + 'static
+    {
+        let (tx, rx) = channel();
+        let sp = Spinner {
+            status: st,
+            types: vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"],
+            custom_out: Some(Box::new(f)),
+            rx: rx,
+        };
+        Self::start(sp, tx)
     }
 }
 
