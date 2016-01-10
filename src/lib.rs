@@ -3,6 +3,10 @@
 //! happens asynchronously, your user will not be left in the dark about what
 //! your app is doing.
 
+mod menu;
+
+pub use menu::Menu;
+
 use std::sync::mpsc::{Sender, Receiver, channel, SendError, TryRecvError};
 use std::io::{Write, stdout};
 use std::thread::{self, JoinHandle};
