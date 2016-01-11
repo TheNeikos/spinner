@@ -349,6 +349,8 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! This library is useful for console applications with long running processes.</span>
 <span class='doccomment'>//! You create a `Spinner` and then update it however you see fit. Since this</span>
@@ -363,6 +365,7 @@
 <span class='doccomment'>//! ### Spinners</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! To use a Spinner simply go and create one using the SpinnerBuilder:</span>
+<span class='doccomment'>//!</span>
 <span class='doccomment'>//! ```rust</span>
 <span class='doccomment'>//! use spinner::SpinnerBuilder;</span>
 <span class='doccomment'>//! let sp = SpinnerBuilder::new(&quot;Long Running operation, please wait...&quot;.into()).start();</span>
@@ -376,6 +379,7 @@
 <span class='doccomment'>//! use spinner::SpinnerBuilder;</span>
 <span class='doccomment'>//! let sp = SpinnerBuilder::new(&quot;Long Running operation, please wait...&quot;.into()).start();</span>
 <span class='doccomment'>//! sp.message(&quot;Updating...&quot;.into());</span>
+<span class='doccomment'>//! # let (i, max) = (0usize, 3usize);</span>
 <span class='doccomment'>//! sp.update(format!(&quot;Finished {} out of {}.&quot;, i, max));</span>
 <span class='doccomment'>//! ```</span>
 <span class='doccomment'>//!</span>
@@ -397,13 +401,13 @@
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! A simple menu might look like this:</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```rust</span>
+<span class='doccomment'>//! ```no_run</span>
 <span class='doccomment'>//! use spinner::menu::*;</span>
 <span class='doccomment'>//! let m = Menu::new(vec![</span>
-<span class='doccomment'>//!     MenuOption(&quot;First Name&quot;.into(), MenuType::Text(false), None),</span>
-<span class='doccomment'>//!     MenuOption(&quot;Last Name&quot;.into(), MenuType::Text(true), None),</span>
-<span class='doccomment'>//!     MenuOption(&quot;Age&quot;.into(), MenuType::Integer(true), Some(MenuValue::Integer(1))),</span>
-<span class='doccomment'>//!     MenuOption(&quot;How much Ketchup?&quot;.into(), MenuType::Float(true), None),</span>
+<span class='doccomment'>//!     MenuOption(&quot;First Name&quot;.into(), MenuType::Text, MenuOptional::Optional, None),</span>
+<span class='doccomment'>//!     MenuOption(&quot;Last Name&quot;.into(), MenuType::Text, MenuOptional::Required, None),</span>
+<span class='doccomment'>//!     MenuOption(&quot;Age&quot;.into(), MenuType::Integer, MenuOptional::Optional, Some(MenuValue::Integer(1))),</span>
+<span class='doccomment'>//!     MenuOption(&quot;How much Ketchup?&quot;.into(), MenuType::Float, MenuOptional::Optional, None),</span>
 <span class='doccomment'>//! ]);</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! let results = m.display();</span>

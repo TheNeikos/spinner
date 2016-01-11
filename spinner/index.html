@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/spinner/lib.rs.html#1-309' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/spinner/lib.rs.html#1-311' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This library is useful for console applications with long running processes.
 You create a <code>Spinner</code> and then update it however you see fit. Since this
 happens asynchronously, your user will not be left in the dark about what
@@ -55,8 +55,10 @@ your app is doing.</p>
 simple interface to build menus.</p>
 
 <h3 id='spinners' class='section-header'><a href='#spinners'>Spinners</a></h3>
-<p>To use a Spinner simply go and create one using the SpinnerBuilder:
-<code>rust use spinner::SpinnerBuilder; let sp = SpinnerBuilder::new(&quot;Long Running operation, please wait...&quot;.into()).start();</code></p>
+<p>To use a Spinner simply go and create one using the SpinnerBuilder:</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>spinner</span>::<span class='ident'>SpinnerBuilder</span>;
+<span class='kw'>let</span> <span class='ident'>sp</span> <span class='op'>=</span> <span class='ident'>SpinnerBuilder</span>::<span class='ident'>new</span>(<span class='string'>&quot;Long Running operation, please wait...&quot;</span>.<span class='ident'>into</span>()).<span class='ident'>start</span>();</pre>
 
 <p>Will inform the user that your app currently is doing background processing.
 <code>sp</code> is a <code>SpinnerHandle</code>, through which you can tell the user for example how
@@ -86,10 +88,10 @@ step.</li>
 <pre class='rust rust-example-rendered'>
 <span class='kw'>use</span> <span class='ident'>spinner</span>::<span class='ident'>menu</span>::<span class='op'>*</span>;
 <span class='kw'>let</span> <span class='ident'>m</span> <span class='op'>=</span> <span class='ident'>Menu</span>::<span class='ident'>new</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
-    <span class='ident'>MenuOption</span>(<span class='string'>&quot;First Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(<span class='boolval'>false</span>), <span class='prelude-val'>None</span>),
-    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Last Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(<span class='boolval'>true</span>), <span class='prelude-val'>None</span>),
-    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Age&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>(<span class='boolval'>true</span>), <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='number'>1</span>))),
-    <span class='ident'>MenuOption</span>(<span class='string'>&quot;How much Ketchup?&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Float</span>(<span class='boolval'>true</span>), <span class='prelude-val'>None</span>),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;First Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>, <span class='ident'>MenuOptional</span>::<span class='ident'>Optional</span>, <span class='prelude-val'>None</span>),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Last Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>, <span class='ident'>MenuOptional</span>::<span class='ident'>Required</span>, <span class='prelude-val'>None</span>),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Age&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>, <span class='ident'>MenuOptional</span>::<span class='ident'>Optional</span>, <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='number'>1</span>))),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;How much Ketchup?&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Float</span>, <span class='ident'>MenuOptional</span>::<span class='ident'>Optional</span>, <span class='prelude-val'>None</span>),
 ]);
 
 <span class='kw'>let</span> <span class='ident'>results</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>display</span>();</pre>

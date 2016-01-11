@@ -248,6 +248,12 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::{<span class='ident'>stdin</span>, <span class='ident'>stdout</span>, <span class='ident'>BufRead</span>, <span class='ident'>Read</span>, <span class='ident'>Write</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::{<span class='ident'>Display</span>, <span class='ident'>Formatter</span>, <span class='ident'>Error</span> <span class='kw'>as</span> <span class='ident'>FmtError</span>};
@@ -256,20 +262,27 @@
 <span class='kw'>use</span> <span class='ident'>ansi_term</span>::<span class='ident'>Style</span>;
 <span class='kw'>use</span> <span class='ident'>ansi_term</span>::<span class='ident'>Colour</span>::<span class='ident'>Red</span>;
 
+<span class='doccomment'>/// An enum specifying if a given field is optional or not</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Debug</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>MenuOptional</span> {
+    <span class='doccomment'>/// This will make the field optional</span>
+    <span class='ident'>Optional</span>,
+    <span class='doccomment'>/// This will make the field required</span>
+    <span class='ident'>Required</span>
+}
+
 <span class='doccomment'>/// An enum specifying the type of information the user should put in.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// This is then later checked against by trying to convert into this type.</span>
 <span class='doccomment'>/// If it fails the user is asked to type in again.</span>
-<span class='doccomment'>/// The boolean specifies if the value should be optional or not.</span>
-<span class='doccomment'>/// true == optional</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Debug</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>MenuType</span> {
     <span class='doccomment'>/// Input should be type Text</span>
-    <span class='ident'>Text</span>(<span class='ident'>bool</span>),
+    <span class='ident'>Text</span>,
     <span class='doccomment'>/// Input should be type Integer</span>
-    <span class='ident'>Integer</span>(<span class='ident'>bool</span>),
+    <span class='ident'>Integer</span>,
     <span class='doccomment'>/// Input should be type Float</span>
-    <span class='ident'>Float</span>(<span class='ident'>bool</span>)
+    <span class='ident'>Float</span>
 }
 
 <span class='doccomment'>/// The value of the given menu, when given as an argument to the constructor</span>
@@ -297,19 +310,19 @@
 
 <span class='doccomment'>/// An individual MenuOption, check out the crate documentation on how to use it</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>MenuOption</span>(<span class='kw'>pub</span> <span class='ident'>String</span>, <span class='kw'>pub</span> <span class='ident'>MenuType</span>, <span class='kw'>pub</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>MenuValue</span><span class='op'>&gt;</span>);
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>MenuOption</span>(<span class='kw'>pub</span> <span class='ident'>String</span>, <span class='kw'>pub</span> <span class='ident'>MenuType</span>, <span class='kw'>pub</span> <span class='ident'>MenuOptional</span>, <span class='kw'>pub</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>MenuValue</span><span class='op'>&gt;</span>);
 
 <span class='kw'>impl</span> <span class='ident'>MenuOption</span> {
     <span class='kw'>fn</span> <span class='ident'>set_string</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='ident'>String</span>) {
-        <span class='self'>self</span>.<span class='number'>2</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Text</span>(<span class='ident'>s</span>));
+        <span class='self'>self</span>.<span class='number'>3</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Text</span>(<span class='ident'>s</span>));
     }
 
     <span class='kw'>fn</span> <span class='ident'>set_int</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>i64</span>) {
-        <span class='self'>self</span>.<span class='number'>2</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='ident'>i</span>));
+        <span class='self'>self</span>.<span class='number'>3</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='ident'>i</span>));
     }
 
     <span class='kw'>fn</span> <span class='ident'>set_float</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>f</span>: <span class='ident'>f64</span>) {
-        <span class='self'>self</span>.<span class='number'>2</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Float</span>(<span class='ident'>f</span>));
+        <span class='self'>self</span>.<span class='number'>3</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Float</span>(<span class='ident'>f</span>));
     }
 
     <span class='doccomment'>/// Get the string if there is one, will panic if MenuType is not a string</span>
@@ -318,7 +331,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This will panic if the types do not match</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_string</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>2</span>.<span class='ident'>take</span>() {
+        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>3</span>.<span class='ident'>take</span>() {
             <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Text</span>(<span class='ident'>s</span>)) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>),
             <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
             <span class='ident'>a</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Tried to take a String out of a menu option that is a {:?}&quot;</span>, <span class='ident'>a</span>)
@@ -332,7 +345,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This will panic if the types do not match</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_int</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>i64</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>2</span>.<span class='ident'>take</span>() {
+        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>3</span>.<span class='ident'>take</span>() {
             <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='ident'>s</span>)) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>),
             <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
             <span class='ident'>a</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Tried to take a Integer out of a menu option that is a {:?}&quot;</span>, <span class='ident'>a</span>)
@@ -345,7 +358,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This will panic if the types do not match</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_float</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>2</span>.<span class='ident'>take</span>() {
+        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>3</span>.<span class='ident'>take</span>() {
             <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Float</span>(<span class='ident'>s</span>)) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>),
             <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
             <span class='ident'>a</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Tried to take a Float out of a menu option that is a {:?}&quot;</span>, <span class='ident'>a</span>)
@@ -354,21 +367,20 @@
 
 
     <span class='kw'>fn</span> <span class='ident'>is_optional</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>1</span> {
-            <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(<span class='ident'>a</span>) <span class='op'>=&gt;</span> <span class='ident'>a</span>,
-            <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>(<span class='ident'>a</span>) <span class='op'>=&gt;</span> <span class='ident'>a</span>,
-            <span class='ident'>MenuType</span>::<span class='ident'>Float</span>(<span class='ident'>a</span>) <span class='op'>=&gt;</span> <span class='ident'>a</span>,
+        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>2</span> {
+            <span class='ident'>MenuOptional</span>::<span class='ident'>Optional</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
+            <span class='ident'>MenuOptional</span>::<span class='ident'>Required</span> <span class='op'>=&gt;</span> <span class='boolval'>false</span>
         }
     }
 
     <span class='kw'>fn</span> <span class='ident'>set</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='ident'>String</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), ()<span class='op'>&gt;</span>{
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>1</span> {
-            <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(_) <span class='op'>=&gt;</span> {
+            <span class='ident'>MenuType</span>::<span class='ident'>Text</span> <span class='op'>=&gt;</span> {
                 <span class='kw'>let</span> <span class='ident'>m</span>: <span class='kw-2'>&amp;</span>[_] <span class='op'>=</span> <span class='kw-2'>&amp;</span>[<span class='string'>&#39;\n&#39;</span>, <span class='string'>&#39;\r&#39;</span>];
                 <span class='self'>self</span>.<span class='ident'>set_string</span>(<span class='ident'>s</span>.<span class='ident'>trim_right_matches</span>(<span class='ident'>m</span>).<span class='ident'>into</span>());
                 <span class='prelude-val'>Ok</span>(())
             },
-            <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>(_) <span class='op'>=&gt;</span> {
+            <span class='ident'>MenuType</span>::<span class='ident'>Integer</span> <span class='op'>=&gt;</span> {
                 <span class='kw'>let</span> <span class='ident'>try</span> <span class='op'>=</span> <span class='ident'>i64</span>::<span class='ident'>from_str</span>(<span class='ident'>s</span>.<span class='ident'>trim</span>());
                 <span class='kw'>if</span> <span class='ident'>try</span>.<span class='ident'>is_err</span>() {
                     <span class='kw'>return</span> <span class='prelude-val'>Err</span>(());
@@ -376,7 +388,7 @@
                 <span class='self'>self</span>.<span class='ident'>set_int</span>(<span class='ident'>try</span>.<span class='ident'>unwrap</span>());
                 <span class='prelude-val'>Ok</span>(())
             },
-            <span class='ident'>MenuType</span>::<span class='ident'>Float</span>(_) <span class='op'>=&gt;</span> {
+            <span class='ident'>MenuType</span>::<span class='ident'>Float</span> <span class='op'>=&gt;</span> {
                 <span class='kw'>let</span> <span class='ident'>try</span> <span class='op'>=</span> <span class='ident'>f64</span>::<span class='ident'>from_str</span>(<span class='ident'>s</span>.<span class='ident'>trim</span>());
                 <span class='kw'>if</span> <span class='ident'>try</span>.<span class='ident'>is_err</span>() {
                     <span class='kw'>return</span> <span class='prelude-val'>Err</span>(());
@@ -389,9 +401,9 @@
 
     <span class='kw'>fn</span> <span class='ident'>get_type_name</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>1</span> {
-            <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;Text&quot;</span>,
-            <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;Integer&quot;</span>,
-            <span class='ident'>MenuType</span>::<span class='ident'>Float</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;Float&quot;</span>,
+            <span class='ident'>MenuType</span>::<span class='ident'>Text</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Text&quot;</span>,
+            <span class='ident'>MenuType</span>::<span class='ident'>Integer</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Integer&quot;</span>,
+            <span class='ident'>MenuType</span>::<span class='ident'>Float</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Float&quot;</span>,
         }
     }
 }
@@ -424,7 +436,7 @@
             <span class='kw'>let</span> <span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>item</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>items</span>[<span class='ident'>i</span>];
             <span class='macro'>print</span><span class='macro'>!</span>(<span class='string'>&quot;{} {}, expecting {}: &quot;</span>, <span class='ident'>Style</span>::<span class='ident'>new</span>().<span class='ident'>bold</span>().<span class='ident'>paint</span>(<span class='kw-2'>&amp;</span><span class='ident'>item</span>.<span class='number'>0</span>[..]), {
                 <span class='kw'>if</span> <span class='ident'>item</span>.<span class='ident'>is_optional</span>() {
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>item</span>.<span class='number'>2</span> {
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>item</span>.<span class='number'>3</span> {
                         <span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;(Optional, default: \&quot;{}\&quot;)&quot;</span>, <span class='ident'>s</span>)
                     } <span class='kw'>else</span> {
                         <span class='string'>&quot;(Optional)&quot;</span>.<span class='ident'>into</span>()
