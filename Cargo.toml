@@ -1,11 +1,12 @@
 [package]
 name = "spinner"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Marcel Müller <neikos@neikos.email>"]
 description = "A simple library to add more interactivity to your terminal applications."
 license = "LGPL-3.0"
 homepage = "https://github.com/theneikos/spinner"
 repository = "https://github.com/theneikos/spinner"
+documentation = "http://neikos.me/spinner/spinner/"
 
 [dependencies]
 term = "0.2"
