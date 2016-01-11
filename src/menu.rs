@@ -2,6 +2,9 @@ use std::io::{stdin, stdout, BufRead, Read, Write};
 use std::fmt::{Display, Formatter, Error as FmtError};
 use std::str::FromStr;
 
+use ansi_term::Style;
+use ansi_term::Colour::Red;
+
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 pub enum MenuType {
     Text(bool),
@@ -130,7 +133,7 @@ impl Menu {
         //}
         while i < max {
             let ref mut item = self.items[i];
-            print!("{} {}, expecting {}: ", item.0, {
+            print!("{} {}, expecting {}: ", Style::new().bold().paint(&item.0[..]), {
                 if item.is_optional() {
                     if let Some(ref s) = item.2 {
                         format!("(Optional, default: \"{}\")", s)
@@ -140,7 +143,7 @@ impl Menu {
                 } else {
                     String::new()
                 }
-            }, item.get_type_name());
+            }, Style::new().italic().paint(item.get_type_name()));
             stdout().flush().unwrap();
             let mut buffer = String::new();
             // TODO: Think of a way to not unwrap here, result?
@@ -148,7 +151,7 @@ impl Menu {
 
             let empty = buffer.chars().all(char::is_whitespace);
             if empty && !item.is_optional() {
-                println!("This item is not optional, please enter a value.");
+                println!("{}", Red.paint("This item is not optional, please enter a value."));
                 continue;
             } else if empty {
                 // We do not remove the default value
@@ -157,7 +160,7 @@ impl Menu {
             }
 
             if item.set(buffer).is_err() {
-                println!("You have entered the wrong type of information.");
+                println!("{}", Red.paint("You have entered the wrong type of information."));
                 continue;
             }
             i = i + 1;

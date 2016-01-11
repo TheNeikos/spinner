@@ -2,6 +2,7 @@
 //! You create a `Spinner` and then update it however you see fit. Since this
 //! happens asynchronously, your user will not be left in the dark about what
 //! your app is doing.
+extern crate ansi_term;
 extern crate term;
 
 pub mod menu;

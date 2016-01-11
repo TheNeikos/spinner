@@ -9,3 +9,4 @@ repository = "https://github.com/theneikos/spinner"
 
 [dependencies]
 term = "0.2"
+ansi_term = "0.7"
