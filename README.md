@@ -1,6 +1,9 @@
 _Spinner_, a simple library to create interactive terminal applications
 =======================================================================
 
+## [Documentation](http://neikos.me/spinner/spinner/)
+
+
 To use Spinner simply add it to your `Cargo.toml`
 
 ```toml
