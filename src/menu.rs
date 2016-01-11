@@ -5,20 +5,27 @@ use std::str::FromStr;
 use ansi_term::Style;
 use ansi_term::Colour::Red;
 
+/// An enum specifying if a given field is optional or not
+#[derive(Eq, PartialEq, Clone, Copy, Debug)]
+pub enum MenuOptional {
+    /// This will make the field optional
+    Optional,
+    /// This will make the field required
+    Required
+}
+
 /// An enum specifying the type of information the user should put in.
 ///
 /// This is then later checked against by trying to convert into this type.
 /// If it fails the user is asked to type in again.
-/// The boolean specifies if the value should be optional or not.
-/// true == optional
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 pub enum MenuType {
     /// Input should be type Text
-    Text(bool),
+    Text,
     /// Input should be type Integer
-    Integer(bool),
+    Integer,
     /// Input should be type Float
-    Float(bool)
+    Float
 }
 
 /// The value of the given menu, when given as an argument to the constructor
@@ -46,19 +53,19 @@ impl Display for MenuValue {
 
 /// An individual MenuOption, check out the crate documentation on how to use it
 #[derive(Clone, Debug)]
-pub struct MenuOption(pub String, pub MenuType, pub Option<MenuValue>);
+pub struct MenuOption(pub String, pub MenuType, pub MenuOptional, pub Option<MenuValue>);
 
 impl MenuOption {
     fn set_string(&mut self, s: String) {
-        self.2 = Some(MenuValue::Text(s));
+        self.3 = Some(MenuValue::Text(s));
     }
 
     fn set_int(&mut self, i: i64) {
-        self.2 = Some(MenuValue::Integer(i));
+        self.3 = Some(MenuValue::Integer(i));
     }
 
     fn set_float(&mut self, f: f64) {
-        self.2 = Some(MenuValue::Float(f));
+        self.3 = Some(MenuValue::Float(f));
     }
 
     /// Get the string if there is one, will panic if MenuType is not a string
@@ -67,7 +74,7 @@ impl MenuOption {
     ///
     /// This will panic if the types do not match
     pub fn get_string(mut self) -> Option<String> {
-        match self.2.take() {
+        match self.3.take() {
             Some(MenuValue::Text(s)) => Some(s),
             None => None,
             a => panic!("Tried to take a String out of a menu option that is a {:?}", a)
@@ -81,7 +88,7 @@ impl MenuOption {
     ///
     /// This will panic if the types do not match
     pub fn get_int(mut self) -> Option<i64> {
-        match self.2.take() {
+        match self.3.take() {
             Some(MenuValue::Integer(s)) => Some(s),
             None => None,
             a => panic!("Tried to take a Integer out of a menu option that is a {:?}", a)
@@ -94,7 +101,7 @@ impl MenuOption {
     ///
     /// This will panic if the types do not match
     pub fn get_float(mut self) -> Option<f64> {
-        match self.2.take() {
+        match self.3.take() {
             Some(MenuValue::Float(s)) => Some(s),
             None => None,
             a => panic!("Tried to take a Float out of a menu option that is a {:?}", a)
@@ -103,21 +110,20 @@ impl MenuOption {
 
 
     fn is_optional(&self) -> bool {
-        match self.1 {
-            MenuType::Text(a) => a,
-            MenuType::Integer(a) => a,
-            MenuType::Float(a) => a,
+        match self.2 {
+            MenuOptional::Optional => true,
+            MenuOptional::Required => false
         }
     }
 
     fn set(&mut self, s: String) -> Result<(), ()>{
         match self.1 {
-            MenuType::Text(_) => {
+            MenuType::Text => {
                 let m: &[_] = &['\n', '\r'];
                 self.set_string(s.trim_right_matches(m).into());
                 Ok(())
             },
-            MenuType::Integer(_) => {
+            MenuType::Integer => {
                 let try = i64::from_str(s.trim());
                 if try.is_err() {
                     return Err(());
@@ -125,7 +131,7 @@ impl MenuOption {
                 self.set_int(try.unwrap());
                 Ok(())
             },
-            MenuType::Float(_) => {
+            MenuType::Float => {
                 let try = f64::from_str(s.trim());
                 if try.is_err() {
                     return Err(());
@@ -138,9 +144,9 @@ impl MenuOption {
 
     fn get_type_name(&self) -> &'static str {
         match self.1 {
-            MenuType::Text(_) => "Text",
-            MenuType::Integer(_) => "Integer",
-            MenuType::Float(_) => "Float",
+            MenuType::Text => "Text",
+            MenuType::Integer => "Integer",
+            MenuType::Float => "Float",
         }
     }
 }
@@ -173,7 +179,7 @@ impl Menu {
             let ref mut item = self.items[i];
             print!("{} {}, expecting {}: ", Style::new().bold().paint(&item.0[..]), {
                 if item.is_optional() {
-                    if let Some(ref s) = item.2 {
+                    if let Some(ref s) = item.3 {
                         format!("(Optional, default: \"{}\")", s)
                     } else {
                         "(Optional)".into()
