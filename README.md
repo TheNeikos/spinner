@@ -38,12 +38,12 @@ sp.update(format!("Finished {} out of {}.", i, max));
 
 A spinner can be customized in three ways:
 
-    - The `step` duration, which is the 'refresh' period of the message.
-    - The `format`, how a given string is printed, due to limitations this is
-        done through a closure, but it also allows more special formatting than
-        just a format string.
-    - The `spinner` itself, which is the list of characters that change every
-        step.
+- The `step` duration, which is the 'refresh' period of the message.
+- The `format`, how a given string is printed, due to limitations this is
+    done through a closure, but it also allows more special formatting than
+    just a format string.
+- The `spinner` itself, which is the list of characters that change every
+    step.
 
 
 ### Menus

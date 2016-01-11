@@ -5,17 +5,32 @@ use std::str::FromStr;
 use ansi_term::Style;
 use ansi_term::Colour::Red;
 
+/// An enum specifying the type of information the user should put in.
+///
+/// This is then later checked against by trying to convert into this type.
+/// If it fails the user is asked to type in again.
+/// The boolean specifies if the value should be optional or not.
+/// true == optional
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 pub enum MenuType {
+    /// Input should be type Text
     Text(bool),
+    /// Input should be type Integer
     Integer(bool),
+    /// Input should be type Float
     Float(bool)
 }
 
+/// The value of the given menu, when given as an argument to the constructor
+/// this will be used as the default value. When returned after displaying
+/// the menu it will contain the information input by the user.
 #[derive(Clone, Debug)]
 pub enum MenuValue {
+    /// The value of a Text MenuOption
     Text(String),
+    /// The value of an Integer MenuOption
     Integer(i64),
+    /// The value of a Float MenuOption
     Float(f64)
 }
 
@@ -29,6 +44,7 @@ impl Display for MenuValue {
     }
 }
 
+/// An individual MenuOption, check out the crate documentation on how to use it
 #[derive(Clone, Debug)]
 pub struct MenuOption(pub String, pub MenuType, pub Option<MenuValue>);
 
@@ -45,6 +61,11 @@ impl MenuOption {
         self.2 = Some(MenuValue::Float(f));
     }
 
+    /// Get the string if there is one, will panic if MenuType is not a string
+    ///
+    /// # Panic
+    ///
+    /// This will panic if the types do not match
     pub fn get_string(mut self) -> Option<String> {
         match self.2.take() {
             Some(MenuValue::Text(s)) => Some(s),
@@ -53,6 +74,12 @@ impl MenuOption {
         }
     }
 
+    /// Get the integer if there is one, will panic if MenuType is not an
+    /// integer
+    ///
+    /// # Panic
+    ///
+    /// This will panic if the types do not match
     pub fn get_int(mut self) -> Option<i64> {
         match self.2.take() {
             Some(MenuValue::Integer(s)) => Some(s),
@@ -61,6 +88,11 @@ impl MenuOption {
         }
     }
 
+    /// Get the float if there is one, will panic if MenuType is not a float
+    ///
+    /// # Panic
+    ///
+    /// This will panic if the types do not match
     pub fn get_float(mut self) -> Option<f64> {
         match self.2.take() {
             Some(MenuValue::Float(s)) => Some(s),
@@ -69,7 +101,8 @@ impl MenuOption {
         }
     }
 
-    pub fn is_optional(&self) -> bool {
+
+    fn is_optional(&self) -> bool {
         match self.1 {
             MenuType::Text(a) => a,
             MenuType::Integer(a) => a,
@@ -77,7 +110,7 @@ impl MenuOption {
         }
     }
 
-    pub fn set(&mut self, s: String) -> Result<(), ()>{
+    fn set(&mut self, s: String) -> Result<(), ()>{
         match self.1 {
             MenuType::Text(_) => {
                 let m: &[_] = &['\n', '\r'];
@@ -103,7 +136,7 @@ impl MenuOption {
         }
     }
 
-    pub fn get_type_name(&self) -> &'static str {
+    fn get_type_name(&self) -> &'static str {
         match self.1 {
             MenuType::Text(_) => "Text",
             MenuType::Integer(_) => "Integer",
@@ -112,17 +145,22 @@ impl MenuOption {
     }
 }
 
+/// A menu that has not yet been displayed
+#[derive(Clone, Debug)]
 pub struct Menu {
     items: Vec<MenuOption>,
 }
 
 impl Menu {
+    /// Construct a new menu using the given MenuOptions
     pub fn new(i: Vec<MenuOption>) -> Self {
         Menu {
             items: i,
         }
     }
 
+    /// Consume the menu and return a Vector of MenuOptions with the new values
+    /// inserted.
     pub fn display(mut self) -> Vec<MenuOption> {
         let mut i = 0;
         let max = self.items.len();
