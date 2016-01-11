@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `spinner` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, spinner">
+
+    <title>spinner - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'spinner', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>spinner</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/spinner/lib.rs.html#1-309' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This library is useful for console applications with long running processes.
+You create a <code>Spinner</code> and then update it however you see fit. Since this
+happens asynchronously, your user will not be left in the dark about what
+your app is doing.</p>
+
+<p>There are two parts to Spinner, one part is the spinner itself, the other a
+simple interface to build menus.</p>
+
+<h3 id='spinners' class='section-header'><a href='#spinners'>Spinners</a></h3>
+<p>To use a Spinner simply go and create one using the SpinnerBuilder:
+<code>rust use spinner::SpinnerBuilder; let sp = SpinnerBuilder::new(&quot;Long Running operation, please wait...&quot;.into()).start();</code></p>
+
+<p>Will inform the user that your app currently is doing background processing.
+<code>sp</code> is a <code>SpinnerHandle</code>, through which you can tell the user for example how
+far along the process you are, or perhaps a message in between.</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>spinner</span>::<span class='ident'>SpinnerBuilder</span>;
+<span class='kw'>let</span> <span class='ident'>sp</span> <span class='op'>=</span> <span class='ident'>SpinnerBuilder</span>::<span class='ident'>new</span>(<span class='string'>&quot;Long Running operation, please wait...&quot;</span>.<span class='ident'>into</span>()).<span class='ident'>start</span>();
+<span class='ident'>sp</span>.<span class='ident'>message</span>(<span class='string'>&quot;Updating...&quot;</span>.<span class='ident'>into</span>());
+<span class='ident'>sp</span>.<span class='ident'>update</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;Finished {} out of {}.&quot;</span>, <span class='ident'>i</span>, <span class='ident'>max</span>));</pre>
+
+<h4 id='customizing' class='section-header'><a href='#customizing'>Customizing</a></h4>
+<p>A spinner can be customized in three ways:</p>
+
+<ul>
+<li>The <code>step</code> duration, which is the &#39;refresh&#39; period of the message.</li>
+<li>The <code>format</code>, how a given string is printed, due to limitations this is
+done through a closure, but it also allows more special formatting than
+just a format string.</li>
+<li>The <code>spinner</code> itself, which is the list of characters that change every
+step.</li>
+</ul>
+
+<h3 id='menus' class='section-header'><a href='#menus'>Menus</a></h3>
+<p>Menus are simple, type checked ways to ask the user for information.</p>
+
+<p>A simple menu might look like this:</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>spinner</span>::<span class='ident'>menu</span>::<span class='op'>*</span>;
+<span class='kw'>let</span> <span class='ident'>m</span> <span class='op'>=</span> <span class='ident'>Menu</span>::<span class='ident'>new</span>(<span class='macro'>vec</span><span class='macro'>!</span>[
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;First Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(<span class='boolval'>false</span>), <span class='prelude-val'>None</span>),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Last Name&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Text</span>(<span class='boolval'>true</span>), <span class='prelude-val'>None</span>),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;Age&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Integer</span>(<span class='boolval'>true</span>), <span class='prelude-val'>Some</span>(<span class='ident'>MenuValue</span>::<span class='ident'>Integer</span>(<span class='number'>1</span>))),
+    <span class='ident'>MenuOption</span>(<span class='string'>&quot;How much Ketchup?&quot;</span>.<span class='ident'>into</span>(), <span class='ident'>MenuType</span>::<span class='ident'>Float</span>(<span class='boolval'>true</span>), <span class='prelude-val'>None</span>),
+]);
+
+<span class='kw'>let</span> <span class='ident'>results</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>display</span>();</pre>
+
+<p>In results will then be an array of <code>MenuValue</code>, which can then be retrieved by
+either <code>get_{string,int,float}</code>, calling one of these on the wrong type will
+<strong>panic!</strong>. So be careful to take out the correct value out of the correct menu
+questions.</p>
+
+<h4 id='menuoption' class='section-header'><a href='#menuoption'>MenuOption</a></h4>
+<p>A MenuOption is a NewType. It consists of a string which will constitute the
+question being presented to the user. Then a MenuType, telling the checker what
+input is expected. If you need something else use <code>MenuType::Text</code> and work with
+that. You also have to tell whether that input is optional or not.
+(true=optional, false=not optional). At last, an <code>Option&lt;MenuValue&gt;</code> which allows
+you to put in either <code>None</code>, for no default value or <code>Some&lt;MenuValue&gt;</code> which
+will be used if the user inputs nothing.</p>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use menu::<a class='struct' href='../spinner/menu/struct.Menu.html' title='spinner::menu::Menu'>Menu</a>;</code></td></tr><tr><td><code>pub use menu::<a class='struct' href='../spinner/menu/struct.MenuOption.html' title='spinner::menu::MenuOption'>MenuOption</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='menu/index.html'
+                               title='spinner::menu'>menu</a></td>
+                        <td class='docblock short'>
+                             <p>Module defining the menu part of this crate</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.SpinnerBuilder.html'
+                               title='spinner::SpinnerBuilder'>SpinnerBuilder</a></td>
+                        <td class='docblock short'>
+                             <p>The struct with which to create a Spinner, check out the crate documentation
+for some more details</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.SpinnerHandle.html'
+                               title='spinner::SpinnerHandle'>SpinnerHandle</a></td>
+                        <td class='docblock short'>
+                             <p>A handle to the Spinner Thread.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='statics' class='section-header'><a href="#statics">Statics</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='static' href='static.DANCING_KIRBY.html'
+                               title='spinner::DANCING_KIRBY'>DANCING_KIRBY</a></td>
+                        <td class='docblock short'>
+                             <p>A possible string for the spinner, check out the kirby example for a
+possible use case.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "spinner";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
