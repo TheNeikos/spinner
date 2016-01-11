@@ -11,6 +11,7 @@
 //! ### Spinners
 //!
 //! To use a Spinner simply go and create one using the SpinnerBuilder:
+//!
 //! ```rust
 //! use spinner::SpinnerBuilder;
 //! let sp = SpinnerBuilder::new("Long Running operation, please wait...".into()).start();
@@ -24,6 +25,7 @@
 //! use spinner::SpinnerBuilder;
 //! let sp = SpinnerBuilder::new("Long Running operation, please wait...".into()).start();
 //! sp.message("Updating...".into());
+//! # let (i, max) = (0usize, 3usize);
 //! sp.update(format!("Finished {} out of {}.", i, max));
 //! ```
 //!
@@ -45,13 +47,13 @@
 //!
 //! A simple menu might look like this:
 //!
-//! ```rust
+//! ```no_run
 //! use spinner::menu::*;
 //! let m = Menu::new(vec![
-//!     MenuOption("First Name".into(), MenuType::Text(false), None),
-//!     MenuOption("Last Name".into(), MenuType::Text(true), None),
-//!     MenuOption("Age".into(), MenuType::Integer(true), Some(MenuValue::Integer(1))),
-//!     MenuOption("How much Ketchup?".into(), MenuType::Float(true), None),
+//!     MenuOption("First Name".into(), MenuType::Text, MenuOptional::Optional, None),
+//!     MenuOption("Last Name".into(), MenuType::Text, MenuOptional::Required, None),
+//!     MenuOption("Age".into(), MenuType::Integer, MenuOptional::Optional, Some(MenuValue::Integer(1))),
+//!     MenuOption("How much Ketchup?".into(), MenuType::Float, MenuOptional::Optional, None),
 //! ]);
 //!
 //! let results = m.display();
