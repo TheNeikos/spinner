@@ -1,6 +1,6 @@
 [package]
 name = "spinner"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Marcel Müller <neikos@neikos.email>"]
 description = "A simple library to add more interactivity to your terminal applications."
 license = "LGPL-3.0"
