@@ -116,6 +116,10 @@ impl MenuOption {
         }
     }
 
+    fn has_value(&self) -> bool {
+        self.3.is_some()
+    }
+
     fn set(&mut self, s: String) -> Result<(), ()>{
         match self.1 {
             MenuType::Text => {
@@ -177,15 +181,21 @@ impl Menu {
         //}
         while i < max {
             let ref mut item = self.items[i];
-            print!("{} {}, expecting {}: ", Style::new().bold().paint(&item.0[..]), {
-                if item.is_optional() {
-                    if let Some(ref s) = item.3 {
-                        format!("(Optional, default: \"{}\")", s)
-                    } else {
-                        "(Optional)".into()
-                    }
+            print!("{} {}expecting {}: ", Style::new().bold().paint(&item.0[..]), {
+                if let Some(ref s) = item.3 {
+                    format!("({}default: \"{}\") ", {
+                        if item.is_optional() {
+                            "Optional, ".into()
+                        } else {
+                            String::new()
+                        }
+                    }, s)
                 } else {
-                    String::new()
+                    if item.is_optional() {
+                        "(Optional) ".into()
+                    } else {
+                        String::new()
+                    }
                 }
             }, Style::new().italic().paint(item.get_type_name()));
             stdout().flush().unwrap();
@@ -194,7 +204,7 @@ impl Menu {
             let _ = stdin().read_line(&mut buffer).unwrap();
 
             let empty = buffer.chars().all(char::is_whitespace);
-            if empty && !item.is_optional() {
+            if empty && !item.is_optional() && !item.has_value() {
                 println!("{}", Red.paint("This item is not optional, please enter a value."));
                 continue;
             } else if empty {
