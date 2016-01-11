@@ -2,6 +2,7 @@
 //! You create a `Spinner` and then update it however you see fit. Since this
 //! happens asynchronously, your user will not be left in the dark about what
 //! your app is doing.
+extern crate term;
 
 pub mod menu;
 
@@ -72,16 +73,21 @@ impl Spinner {
                     };
                 }
 
+                let mut t = term::stdout().unwrap();
+
                 if let Some(m) = msg {
                     println!("\n{}", m);
                 }
 
                 if should_disc{ break; }
 
+
+                t.carriage_return().unwrap();
+                t.delete_line().unwrap();
                 if let Some(ref cl) = sp.custom_out {
-                    print!("\r{}", cl(i, &sp.status[..]));
+                    print!("{}", cl(i, &sp.status[..]));
                 } else {
-                    print!("\r{} {}", i, sp.status);
+                    print!("{} {}", i, sp.status);
                 }
                 {
                     let x = stdout();

@@ -8,3 +8,4 @@ homepage = "https://github.com/theneikos/spinner"
 repository = "https://github.com/theneikos/spinner"
 
 [dependencies]
+term = "0.2"
