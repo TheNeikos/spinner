@@ -230,7 +230,8 @@ impl SpinnerHandle {
         }
     }
 
-    /// Print out a final message above the Spinner for the user. Closes the Spinner right after.
+    /// Print out a final message above the Spinner for the user.
+    /// Sending messages to Spinner will fail after calling this method.
     ///
     /// Returns the String that is put in in case the sender could not send.
     pub fn done(&self, msg: String) -> Option<String> {
