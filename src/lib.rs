@@ -98,7 +98,8 @@ use std::time::Duration;
 #[derive(Debug)]
 enum SpinnerMessage {
     Status(String),
-    Message(String)
+    Message(String),
+    Done(String)
 }
 
 type FormatFn = Fn(&str, &str) -> String + Send + 'static;
@@ -129,37 +130,10 @@ impl Spinner {
     fn start(sp: Spinner, tx: SyncSender<SpinnerMessage>) -> SpinnerHandle {
         let th = thread::spawn(move|| {
             let mut sp = sp;
+            let mut msg = None;
+            let mut should_disc = false;
             for i in sp.types.iter().cycle() {
-                let mut msg = None;
-                let mut should_disc = false;
-                loop {
-                    match sp.rx.try_recv() {
-                        Ok(ms) => {
-                            match ms {
-                                SpinnerMessage::Status(st) => {
-                                    sp.status = st
-                                },
-                                SpinnerMessage::Message(st) => {
-                                    msg = Some(st)
-                                }
-                            }
-                        },
-                        Err(TryRecvError::Empty) => break,
-                        Err(TryRecvError::Disconnected) => {
-                            should_disc = true;
-                            break;
-                        }
-                    };
-                }
-
                 let mut t = term::stdout().unwrap();
-
-                if let Some(m) = msg {
-                    println!("\n{}", m);
-                }
-
-                if should_disc{ break; }
-
 
                 t.carriage_return().unwrap();
                 t.delete_line().unwrap();
@@ -168,11 +142,39 @@ impl Spinner {
                 } else {
                     print!("{} {}", i, sp.status);
                 }
+
+                if let Some(m) = msg {
+                    println!("\n{}", m);
+                    msg = None;
+                }
+
                 {
                     let x = stdout();
                     x.lock().flush().unwrap();
                 }
-                thread::sleep(sp.step)
+
+                if should_disc{ break; }
+                thread::sleep(sp.step);
+                match sp.rx.try_recv() {
+                    Ok(ms) => {
+                        match ms {
+                            SpinnerMessage::Status(st) => {
+                                sp.status = st;
+                            },
+                            SpinnerMessage::Message(st) => {
+                                msg = Some(st);
+                            },
+                            SpinnerMessage::Done(st) => {
+                                msg = Some(st);
+                                should_disc = true;
+                            }
+                        }
+                    },
+                    Err(TryRecvError::Empty) => (),
+                    Err(TryRecvError::Disconnected) => {
+                        should_disc = true;
+                    }
+                };
             }
         });
 
@@ -212,11 +214,30 @@ impl SpinnerHandle {
     }
 
     /// Print out a message above the Spinner for the user.
+    ///
+    /// Returns the String that is put in in case the sender could not send.
     pub fn message(&self, msg: String) -> Option<String> {
         match self.send.send(SpinnerMessage::Message(msg)) {
             Ok(_) => None,
             Err(s) => {
                 if let SendError(SpinnerMessage::Message(msg)) = s {
+                    Some(msg)
+                } else {
+                    unreachable!()
+                }
+
+            }
+        }
+    }
+
+    /// Print out a final message above the Spinner for the user. Closes the Spinner right after.
+    ///
+    /// Returns the String that is put in in case the sender could not send.
+    pub fn done(&self, msg: String) -> Option<String> {
+        match self.send.send(SpinnerMessage::Done(msg)) {
+            Ok(_) => None,
+            Err(s) => {
+                if let SendError(SpinnerMessage::Done(msg)) = s {
                     Some(msg)
                 } else {
                     unreachable!()
