@@ -90,7 +90,7 @@ pub mod menu;
 pub use menu::Menu;
 pub use menu::MenuOption;
 
-use std::sync::mpsc::{Sender, Receiver, channel, SendError, TryRecvError};
+use std::sync::mpsc::{SyncSender, Receiver, sync_channel, SendError, TryRecvError};
 use std::io::{Write, stdout};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
@@ -126,7 +126,7 @@ struct Spinner {
 
 impl Spinner {
 
-    fn start(sp: Spinner, tx: Sender<SpinnerMessage>) -> SpinnerHandle {
+    fn start(sp: Spinner, tx: SyncSender<SpinnerMessage>) -> SpinnerHandle {
         let th = thread::spawn(move|| {
             let mut sp = sp;
             for i in sp.types.iter().cycle() {
@@ -189,7 +189,7 @@ impl Spinner {
 /// to make sure the thread joins before the main thread might close.
 /// Otherwise you will get cutoff output.
 pub struct SpinnerHandle {
-    send: Sender<SpinnerMessage>,
+    send: SyncSender<SpinnerMessage>,
     handle: Option<JoinHandle<()>>,
 }
 
@@ -298,7 +298,7 @@ impl SpinnerBuilder {
             }
         };
 
-        let (tx, rx) = channel();
+        let (tx, rx) = sync_channel(0);
         let sp = Spinner {
             status: self.msg,
             types: typ,
