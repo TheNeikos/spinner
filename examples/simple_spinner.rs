@@ -11,6 +11,6 @@ fn main() {
     sp.message("Updating...".into());
     sp.update("Fixing things...".into());
     thread::sleep(Duration::from_millis(2000));
-    sp.message("Done!".into());
+    sp.done("Done!".into());
     sp.close();
 }
