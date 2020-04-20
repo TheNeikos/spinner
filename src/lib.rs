@@ -128,7 +128,7 @@ impl Spinner {
     fn start(sp: Spinner, tx: Sender<SpinnerMessage>) -> SpinnerHandle {
         let th = thread::spawn(move || {
             let mut sp = sp;
-            for i in sp.types.iter().cycle() {
+            for ttype in sp.types.iter().cycle() {
                 let mut msg = None;
                 let mut should_disc = false;
                 loop {
@@ -164,13 +164,13 @@ impl Spinner {
                 }
 
                 if let Some(ref cl) = sp.custom_out {
-                    print!("{}", cl(i, &sp.status[..]));
+                    print!("{}", cl(ttype, &sp.status[..]));
                 } else {
-                    print!("{} {}", i, sp.status);
+                    print!("{} {}", ttype, sp.status);
                 }
                 {
-                    let x = stdout();
-                    x.lock().flush().unwrap();
+                    let stdout = stdout();
+                    stdout.lock().flush().unwrap();
                 }
                 thread::sleep(sp.step)
             }
@@ -246,7 +246,7 @@ impl SpinnerBuilder {
     /// Create a SpinnerBuilder, giving an original message
     pub fn new(msg: String) -> Self {
         SpinnerBuilder {
-            msg: msg,
+            msg,
             spinner: None,
             custom_format: None,
             step: None,
@@ -279,7 +279,7 @@ impl SpinnerBuilder {
     /// Start the thread that takes care of the Spinner and return immediately
     /// allowing you to load or do otherwise operations.
     pub fn start(self) -> SpinnerHandle {
-        let typ = {
+        let ttypes = {
             if let Some(v) = self.spinner {
                 v
             } else {
@@ -298,9 +298,9 @@ impl SpinnerBuilder {
         let (tx, rx) = channel();
         let sp = Spinner {
             status: self.msg,
-            types: typ,
+            types: ttypes,
             custom_out: self.custom_format,
-            rx: rx,
+            rx,
             step: st,
         };
         Spinner::start(sp, tx)
