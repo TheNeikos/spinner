@@ -101,7 +101,7 @@ enum SpinnerMessage {
     Message(String),
 }
 
-type FormatFn = Fn(&str, &str) -> String + Send + 'static;
+type FormatFn = dyn Fn(&str, &str) -> String + Send + 'static;
 
 /// A possible string for the spinner, check out the kirby example for a
 /// possible use case.
