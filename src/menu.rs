@@ -124,7 +124,7 @@ impl MenuOption {
         match self.1 {
             MenuType::Text => {
                 let m: &[_] = &['\n', '\r'];
-                self.set_string(s.trim_right_matches(m).into());
+                self.set_string(s.trim_end_matches(m).into());
                 Ok(())
             }
             MenuType::Integer => {
