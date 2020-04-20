@@ -174,11 +174,7 @@ impl Menu {
     pub fn display(mut self) -> Vec<MenuOption> {
         let mut i = 0;
         let max = self.items.len();
-        //{
-        //    // Flush stdin, so previous does not get put in here
-        //    let mut b = Vec::new();
-        //    let _ = stdin().read(&mut b).unwrap();
-        //}
+
         while i < max {
             let ref mut item = self.items[i];
             print!("{} {}expecting {}: ", Style::new().bold().paint(&item.0[..]), {
