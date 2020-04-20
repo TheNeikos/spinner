@@ -1,7 +1,7 @@
 extern crate spinner;
 
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 use spinner::SpinnerBuilder;
 

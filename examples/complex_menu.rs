@@ -1,17 +1,24 @@
 extern crate spinner;
 
+use spinner::menu::{MenuOptional, MenuType, MenuValue};
 use spinner::{Menu, MenuOption};
-use spinner::menu::{MenuType, MenuValue, MenuOptional};
 
 fn main() {
     println!("Welcome to the Rust TipCalculator MKI");
     let m = Menu::new(vec![
-        MenuOption("Bill".into(), MenuType::Float,
-                   MenuOptional::Required, None),
-        MenuOption("Tip Percentage (eg. 10 for 10%)".into(), MenuType::Integer,
-                   MenuOptional::Required, Some(MenuValue::Integer(10))),
-        MenuOption("Number of People".into(), MenuType::Integer,
-                   MenuOptional::Required, Some(MenuValue::Integer(1))),
+        MenuOption("Bill".into(), MenuType::Float, MenuOptional::Required, None),
+        MenuOption(
+            "Tip Percentage (eg. 10 for 10%)".into(),
+            MenuType::Integer,
+            MenuOptional::Required,
+            Some(MenuValue::Integer(10)),
+        ),
+        MenuOption(
+            "Number of People".into(),
+            MenuType::Integer,
+            MenuOptional::Required,
+            Some(MenuValue::Integer(1)),
+        ),
     ]);
 
     let mut results = m.display();
@@ -28,6 +35,10 @@ fn main() {
         return;
     }
 
-    println!("{} pay {}, the tip is {}", if ppl > 1 { "Each of you" } else { "You" },
-             total / ppl as f64, tip);
+    println!(
+        "{} pay {}, the tip is {}",
+        if ppl > 1 { "Each of you" } else { "You" },
+        total / ppl as f64,
+        tip
+    );
 }

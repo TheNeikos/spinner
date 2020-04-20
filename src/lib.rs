@@ -74,12 +74,16 @@
 //! you to put in either `None`, for no default value or `Some<MenuValue>` which
 //! will be used if the user inputs nothing.
 
-#![deny(missing_docs,
-        missing_copy_implementations,
-        trivial_casts, trivial_numeric_casts,
-        unsafe_code,
-        unstable_features,
-        unused_import_braces, unused_qualifications)]
+#![deny(
+    missing_docs,
+    missing_copy_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unstable_features,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 extern crate ansi_term;
 extern crate term;
@@ -90,8 +94,8 @@ pub mod menu;
 pub use menu::Menu;
 pub use menu::MenuOption;
 
-use std::sync::mpsc::{Sender, Receiver, channel, SendError, TryRecvError};
-use std::io::{Write, stdout};
+use std::io::{stdout, Write};
+use std::sync::mpsc::{channel, Receiver, SendError, Sender, TryRecvError};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
@@ -106,14 +110,7 @@ type FormatFn = dyn Fn(&str, &str) -> String + Send + 'static;
 /// A possible string for the spinner, check out the kirby example for a
 /// possible use case.
 pub static DANCING_KIRBY: [&'static str; 8] = [
-    "(>'-')>",
-    "<('-'<)",
-    "^('-')^",
-    "<('-'<)",
-    "(>'-')>",
-    "<('-'<)",
-    "^('-')^",
-    "<('-'<)"
+    "(>'-')>", "<('-'<)", "^('-')^", "<('-'<)", "(>'-')>", "<('-'<)", "^('-')^", "<('-'<)",
 ];
 
 struct Spinner {
@@ -133,16 +130,10 @@ impl Spinner {
                 let mut should_disc = false;
                 loop {
                     match sp.rx.try_recv() {
-                        Ok(ms) => {
-                            match ms {
-                                SpinnerMessage::Status(st) => {
-                                    sp.status = st
-                                }
-                                SpinnerMessage::Message(st) => {
-                                    msg = Some(st)
-                                }
-                            }
-                        }
+                        Ok(ms) => match ms {
+                            SpinnerMessage::Status(st) => sp.status = st,
+                            SpinnerMessage::Message(st) => msg = Some(st),
+                        },
                         Err(TryRecvError::Empty) => break,
                         Err(TryRecvError::Disconnected) => {
                             should_disc = true;
@@ -151,12 +142,13 @@ impl Spinner {
                     };
                 }
 
-
                 if let Some(m) = msg {
                     println!("\n{}", m);
                 }
 
-                if should_disc { break; }
+                if should_disc {
+                    break;
+                }
 
                 if let Some(mut t) = term::stdout() {
                     t.carriage_return().unwrap();
@@ -270,7 +262,8 @@ impl SpinnerBuilder {
     /// Set the format closure that is to be used by the spinner, check out
     /// the complex_spinner example how this could be used.
     pub fn format<F>(mut self, f: F) -> Self
-        where F: Fn(&str, &str) -> String + Send + 'static
+    where
+        F: Fn(&str, &str) -> String + Send + 'static,
     {
         self.custom_format = Some(Box::new(f));
         self
