@@ -10,4 +10,4 @@ documentation = "http://neikos.me/spinner/spinner/"
 
 [dependencies]
 term = "0.6.1"
-ansi_term = "0.7"
+ansi_term = "0.12.1"
