@@ -152,7 +152,6 @@ impl Spinner {
                     };
                 }
 
-                let mut t = term::stdout().unwrap();
 
                 if let Some(m) = msg {
                     println!("\n{}", m);
@@ -160,9 +159,11 @@ impl Spinner {
 
                 if should_disc{ break; }
 
+                if let Some(mut t) = term::stdout() {
+                    t.carriage_return().unwrap();
+                    t.delete_line().unwrap();
+                }
 
-                t.carriage_return().unwrap();
-                t.delete_line().unwrap();
                 if let Some(ref cl) = sp.custom_out {
                     print!("{}", cl(i, &sp.status[..]));
                 } else {
