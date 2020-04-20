@@ -7,7 +7,7 @@ use spinner::SpinnerBuilder;
 
 fn main() {
     let sp = SpinnerBuilder::new("Long Running op!".into()).
-        format(|sp, status|{
+        format(|sp, status| {
             format!("{spin} -- Currently working on: \'{status}\' -- {spin}",
                     spin = sp, status = status)
         }).start();

@@ -98,7 +98,7 @@ use std::time::Duration;
 #[derive(Debug)]
 enum SpinnerMessage {
     Status(String),
-    Message(String)
+    Message(String),
 }
 
 type FormatFn = Fn(&str, &str) -> String + Send + 'static;
@@ -106,14 +106,14 @@ type FormatFn = Fn(&str, &str) -> String + Send + 'static;
 /// A possible string for the spinner, check out the kirby example for a
 /// possible use case.
 pub static DANCING_KIRBY: [&'static str; 8] = [
-"(>'-')>",
-"<('-'<)",
-"^('-')^",
-"<('-'<)",
-"(>'-')>",
-"<('-'<)",
-"^('-')^",
-"<('-'<)"
+    "(>'-')>",
+    "<('-'<)",
+    "^('-')^",
+    "<('-'<)",
+    "(>'-')>",
+    "<('-'<)",
+    "^('-')^",
+    "<('-'<)"
 ];
 
 struct Spinner {
@@ -121,13 +121,12 @@ struct Spinner {
     types: Vec<&'static str>,
     rx: Receiver<SpinnerMessage>,
     custom_out: Option<Box<FormatFn>>,
-    step: Duration
+    step: Duration,
 }
 
 impl Spinner {
-
     fn start(sp: Spinner, tx: Sender<SpinnerMessage>) -> SpinnerHandle {
-        let th = thread::spawn(move|| {
+        let th = thread::spawn(move || {
             let mut sp = sp;
             for i in sp.types.iter().cycle() {
                 let mut msg = None;
@@ -138,12 +137,12 @@ impl Spinner {
                             match ms {
                                 SpinnerMessage::Status(st) => {
                                     sp.status = st
-                                },
+                                }
                                 SpinnerMessage::Message(st) => {
                                     msg = Some(st)
                                 }
                             }
-                        },
+                        }
                         Err(TryRecvError::Empty) => break,
                         Err(TryRecvError::Disconnected) => {
                             should_disc = true;
@@ -157,7 +156,7 @@ impl Spinner {
                     println!("\n{}", m);
                 }
 
-                if should_disc{ break; }
+                if should_disc { break; }
 
                 if let Some(mut t) = term::stdout() {
                     t.carriage_return().unwrap();
@@ -207,7 +206,6 @@ impl SpinnerHandle {
                 } else {
                     unreachable!()
                 }
-
             }
         }
     }
@@ -222,7 +220,6 @@ impl SpinnerHandle {
                 } else {
                     unreachable!()
                 }
-
             }
         }
     }
@@ -274,20 +271,19 @@ impl SpinnerBuilder {
     /// the complex_spinner example how this could be used.
     pub fn format<F>(mut self, f: F) -> Self
         where F: Fn(&str, &str) -> String + Send + 'static
-        {
-            self.custom_format = Some(Box::new(f));
-            self
-        }
+    {
+        self.custom_format = Some(Box::new(f));
+        self
+    }
 
     /// Start the thread that takes care of the Spinner and return immediately
     /// allowing you to load or do otherwise operations.
     pub fn start(self) -> SpinnerHandle {
-
         let typ = {
             if let Some(v) = self.spinner {
                 v
             } else {
-                vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"]
+                vec!["▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"]
             }
         };
 

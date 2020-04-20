@@ -20,7 +20,7 @@ fn main() {
     let tip_p = results.pop().unwrap().get_int().unwrap();
     let bill = results.pop().unwrap().get_float().unwrap();
 
-    let tip = bill * (tip_p as f64/100f64);
+    let tip = bill * (tip_p as f64 / 100f64);
     let total = bill + tip;
 
     if ppl < 1 {
@@ -29,6 +29,5 @@ fn main() {
     }
 
     println!("{} pay {}, the tip is {}", if ppl > 1 { "Each of you" } else { "You" },
-             total/ppl as f64, tip);
-
+             total / ppl as f64, tip);
 }

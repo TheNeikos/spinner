@@ -1,4 +1,3 @@
-
 extern crate spinner;
 
 use std::time::Duration;

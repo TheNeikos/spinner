@@ -11,7 +11,7 @@ pub enum MenuOptional {
     /// This will make the field optional
     Optional,
     /// This will make the field required
-    Required
+    Required,
 }
 
 /// An enum specifying the type of information the user should put in.
@@ -25,7 +25,7 @@ pub enum MenuType {
     /// Input should be type Integer
     Integer,
     /// Input should be type Float
-    Float
+    Float,
 }
 
 /// The value of the given menu, when given as an argument to the constructor
@@ -38,7 +38,7 @@ pub enum MenuValue {
     /// The value of an Integer MenuOption
     Integer(i64),
     /// The value of a Float MenuOption
-    Float(f64)
+    Float(f64),
 }
 
 impl Display for MenuValue {
@@ -120,13 +120,13 @@ impl MenuOption {
         self.3.is_some()
     }
 
-    fn set(&mut self, s: String) -> Result<(), ()>{
+    fn set(&mut self, s: String) -> Result<(), ()> {
         match self.1 {
             MenuType::Text => {
                 let m: &[_] = &['\n', '\r'];
                 self.set_string(s.trim_right_matches(m).into());
                 Ok(())
-            },
+            }
             MenuType::Integer => {
                 let try = i64::from_str(s.trim());
                 if try.is_err() {
@@ -134,7 +134,7 @@ impl MenuOption {
                 }
                 self.set_int(try.unwrap());
                 Ok(())
-            },
+            }
             MenuType::Float => {
                 let try = f64::from_str(s.trim());
                 if try.is_err() {
@@ -142,7 +142,7 @@ impl MenuOption {
                 }
                 self.set_float(try.unwrap());
                 Ok(())
-            },
+            }
         }
     }
 
