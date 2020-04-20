@@ -8,7 +8,7 @@ To use Spinner simply add it to your `Cargo.toml`
 
 ```toml
 [dependencies.spinner]
-version = "0.3"
+version = "0.5"
 ```
 
 Usage

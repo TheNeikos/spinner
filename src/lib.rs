@@ -74,12 +74,16 @@
 //! you to put in either `None`, for no default value or `Some<MenuValue>` which
 //! will be used if the user inputs nothing.
 
-#![deny(missing_docs,
-        missing_copy_implementations,
-        trivial_casts, trivial_numeric_casts,
-        unsafe_code,
-        unstable_features,
-        unused_import_braces, unused_qualifications)]
+#![deny(
+    missing_docs,
+    missing_copy_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unstable_features,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 extern crate ansi_term;
 extern crate term;
@@ -90,30 +94,23 @@ pub mod menu;
 pub use menu::Menu;
 pub use menu::MenuOption;
 
-use std::sync::mpsc::{Sender, Receiver, channel, SendError, TryRecvError};
-use std::io::{Write, stdout};
+use std::io::{stdout, Write};
+use std::sync::mpsc::{channel, Receiver, SendError, Sender, TryRecvError};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
 #[derive(Debug)]
 enum SpinnerMessage {
     Status(String),
-    Message(String)
+    Message(String),
 }
 
-type FormatFn = Fn(&str, &str) -> String + Send + 'static;
+type FormatFn = dyn Fn(&str, &str) -> String + Send + 'static;
 
 /// A possible string for the spinner, check out the kirby example for a
 /// possible use case.
 pub static DANCING_KIRBY: [&'static str; 8] = [
-"(>'-')>",
-"<('-'<)",
-"^('-')^",
-"<('-'<)",
-"(>'-')>",
-"<('-'<)",
-"^('-')^",
-"<('-'<)"
+    "(>'-')>", "<('-'<)", "^('-')^", "<('-'<)", "(>'-')>", "<('-'<)", "^('-')^", "<('-'<)",
 ];
 
 struct Spinner {
@@ -121,28 +118,21 @@ struct Spinner {
     types: Vec<&'static str>,
     rx: Receiver<SpinnerMessage>,
     custom_out: Option<Box<FormatFn>>,
-    step: Duration
+    step: Duration,
 }
 
 impl Spinner {
-
     fn start(sp: Spinner, tx: Sender<SpinnerMessage>) -> SpinnerHandle {
-        let th = thread::spawn(move|| {
+        let th = thread::spawn(move || {
             let mut sp = sp;
-            for i in sp.types.iter().cycle() {
+            for ttype in sp.types.iter().cycle() {
                 let mut msg = None;
                 let mut should_disc = false;
                 loop {
                     match sp.rx.try_recv() {
-                        Ok(ms) => {
-                            match ms {
-                                SpinnerMessage::Status(st) => {
-                                    sp.status = st
-                                },
-                                SpinnerMessage::Message(st) => {
-                                    msg = Some(st)
-                                }
-                            }
+                        Ok(ms) => match ms {
+                            SpinnerMessage::Status(st) => sp.status = st,
+                            SpinnerMessage::Message(st) => msg = Some(st),
                         },
                         Err(TryRecvError::Empty) => break,
                         Err(TryRecvError::Disconnected) => {
@@ -152,25 +142,27 @@ impl Spinner {
                     };
                 }
 
-                let mut t = term::stdout().unwrap();
-
                 if let Some(m) = msg {
                     println!("\n{}", m);
                 }
 
-                if should_disc{ break; }
+                if should_disc {
+                    break;
+                }
 
+                if let Some(mut t) = term::stdout() {
+                    t.carriage_return().unwrap();
+                    t.delete_line().unwrap();
+                }
 
-                t.carriage_return().unwrap();
-                t.delete_line().unwrap();
                 if let Some(ref cl) = sp.custom_out {
-                    print!("{}", cl(i, &sp.status[..]));
+                    print!("{}", cl(ttype, &sp.status[..]));
                 } else {
-                    print!("{} {}", i, sp.status);
+                    print!("{} {}", ttype, sp.status);
                 }
                 {
-                    let x = stdout();
-                    x.lock().flush().unwrap();
+                    let stdout = stdout();
+                    stdout.lock().flush().unwrap();
                 }
                 thread::sleep(sp.step)
             }
@@ -206,7 +198,6 @@ impl SpinnerHandle {
                 } else {
                     unreachable!()
                 }
-
             }
         }
     }
@@ -221,7 +212,6 @@ impl SpinnerHandle {
                 } else {
                     unreachable!()
                 }
-
             }
         }
     }
@@ -248,7 +238,7 @@ impl SpinnerBuilder {
     /// Create a SpinnerBuilder, giving an original message
     pub fn new(msg: String) -> Self {
         SpinnerBuilder {
-            msg: msg,
+            msg,
             spinner: None,
             custom_format: None,
             step: None,
@@ -272,21 +262,21 @@ impl SpinnerBuilder {
     /// Set the format closure that is to be used by the spinner, check out
     /// the complex_spinner example how this could be used.
     pub fn format<F>(mut self, f: F) -> Self
-        where F: Fn(&str, &str) -> String + Send + 'static
-        {
-            self.custom_format = Some(Box::new(f));
-            self
-        }
+    where
+        F: Fn(&str, &str) -> String + Send + 'static,
+    {
+        self.custom_format = Some(Box::new(f));
+        self
+    }
 
     /// Start the thread that takes care of the Spinner and return immediately
     /// allowing you to load or do otherwise operations.
     pub fn start(self) -> SpinnerHandle {
-
-        let typ = {
+        let ttypes = {
             if let Some(v) = self.spinner {
                 v
             } else {
-                vec!["▁","▃","▄","▅","▆","▇","█","▇","▆","▅","▄","▃"]
+                vec!["▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"]
             }
         };
 
@@ -301,9 +291,9 @@ impl SpinnerBuilder {
         let (tx, rx) = channel();
         let sp = Spinner {
             status: self.msg,
-            types: typ,
+            types: ttypes,
             custom_out: self.custom_format,
-            rx: rx,
+            rx,
             step: st,
         };
         Spinner::start(sp, tx)

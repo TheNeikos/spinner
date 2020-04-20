@@ -1,9 +1,9 @@
-use std::io::{stdin, stdout, BufRead, Read, Write};
-use std::fmt::{Display, Formatter, Error as FmtError};
+use std::fmt::{Display, Error as FmtError, Formatter};
+use std::io::{stdin, stdout, Write};
 use std::str::FromStr;
 
-use ansi_term::Style;
 use ansi_term::Colour::Red;
+use ansi_term::Style;
 
 /// An enum specifying if a given field is optional or not
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
@@ -11,7 +11,7 @@ pub enum MenuOptional {
     /// This will make the field optional
     Optional,
     /// This will make the field required
-    Required
+    Required,
 }
 
 /// An enum specifying the type of information the user should put in.
@@ -25,7 +25,7 @@ pub enum MenuType {
     /// Input should be type Integer
     Integer,
     /// Input should be type Float
-    Float
+    Float,
 }
 
 /// The value of the given menu, when given as an argument to the constructor
@@ -38,7 +38,7 @@ pub enum MenuValue {
     /// The value of an Integer MenuOption
     Integer(i64),
     /// The value of a Float MenuOption
-    Float(f64)
+    Float(f64),
 }
 
 impl Display for MenuValue {
@@ -46,14 +46,19 @@ impl Display for MenuValue {
         match self {
             &MenuValue::Text(ref s) => s.fmt(f),
             &MenuValue::Integer(ref s) => s.fmt(f),
-            &MenuValue::Float(ref s) => s.fmt(f)
+            &MenuValue::Float(ref s) => s.fmt(f),
         }
     }
 }
 
 /// An individual MenuOption, check out the crate documentation on how to use it
 #[derive(Clone, Debug)]
-pub struct MenuOption(pub String, pub MenuType, pub MenuOptional, pub Option<MenuValue>);
+pub struct MenuOption(
+    pub String,
+    pub MenuType,
+    pub MenuOptional,
+    pub Option<MenuValue>,
+);
 
 impl MenuOption {
     fn set_string(&mut self, s: String) {
@@ -77,7 +82,10 @@ impl MenuOption {
         match self.3.take() {
             Some(MenuValue::Text(s)) => Some(s),
             None => None,
-            a => panic!("Tried to take a String out of a menu option that is a {:?}", a)
+            a => panic!(
+                "Tried to take a String out of a menu option that is a {:?}",
+                a
+            ),
         }
     }
 
@@ -91,7 +99,10 @@ impl MenuOption {
         match self.3.take() {
             Some(MenuValue::Integer(s)) => Some(s),
             None => None,
-            a => panic!("Tried to take a Integer out of a menu option that is a {:?}", a)
+            a => panic!(
+                "Tried to take a Integer out of a menu option that is a {:?}",
+                a
+            ),
         }
     }
 
@@ -104,15 +115,17 @@ impl MenuOption {
         match self.3.take() {
             Some(MenuValue::Float(s)) => Some(s),
             None => None,
-            a => panic!("Tried to take a Float out of a menu option that is a {:?}", a)
+            a => panic!(
+                "Tried to take a Float out of a menu option that is a {:?}",
+                a
+            ),
         }
     }
-
 
     fn is_optional(&self) -> bool {
         match self.2 {
             MenuOptional::Optional => true,
-            MenuOptional::Required => false
+            MenuOptional::Required => false,
         }
     }
 
@@ -120,13 +133,13 @@ impl MenuOption {
         self.3.is_some()
     }
 
-    fn set(&mut self, s: String) -> Result<(), ()>{
+    fn set(&mut self, s: String) -> Result<(), ()> {
         match self.1 {
             MenuType::Text => {
                 let m: &[_] = &['\n', '\r'];
-                self.set_string(s.trim_right_matches(m).into());
+                self.set_string(s.trim_end_matches(m).into());
                 Ok(())
-            },
+            }
             MenuType::Integer => {
                 let try = i64::from_str(s.trim());
                 if try.is_err() {
@@ -134,7 +147,7 @@ impl MenuOption {
                 }
                 self.set_int(try.unwrap());
                 Ok(())
-            },
+            }
             MenuType::Float => {
                 let try = f64::from_str(s.trim());
                 if try.is_err() {
@@ -142,7 +155,7 @@ impl MenuOption {
                 }
                 self.set_float(try.unwrap());
                 Ok(())
-            },
+            }
         }
     }
 
@@ -164,9 +177,7 @@ pub struct Menu {
 impl Menu {
     /// Construct a new menu using the given MenuOptions
     pub fn new(i: Vec<MenuOption>) -> Self {
-        Menu {
-            items: i,
-        }
+        Menu { items: i }
     }
 
     /// Consume the menu and return a Vector of MenuOptions with the new values
@@ -174,30 +185,35 @@ impl Menu {
     pub fn display(mut self) -> Vec<MenuOption> {
         let mut i = 0;
         let max = self.items.len();
-        //{
-        //    // Flush stdin, so previous does not get put in here
-        //    let mut b = Vec::new();
-        //    let _ = stdin().read(&mut b).unwrap();
-        //}
+
         while i < max {
             let ref mut item = self.items[i];
-            print!("{} {}expecting {}: ", Style::new().bold().paint(&item.0[..]), {
-                if let Some(ref s) = item.3 {
-                    format!("({}default: \"{}\") ", {
+            print!(
+                "{} {}expecting {}: ",
+                Style::new().bold().paint(&item.0[..]),
+                {
+                    if let Some(ref s) = item.3 {
+                        format!(
+                            "({}default: \"{}\") ",
+                            {
+                                if item.is_optional() {
+                                    "Optional, ".into()
+                                } else {
+                                    String::new()
+                                }
+                            },
+                            s
+                        )
+                    } else {
                         if item.is_optional() {
-                            "Optional, ".into()
+                            "(Optional) ".into()
                         } else {
                             String::new()
                         }
-                    }, s)
-                } else {
-                    if item.is_optional() {
-                        "(Optional) ".into()
-                    } else {
-                        String::new()
                     }
-                }
-            }, Style::new().italic().paint(item.get_type_name()));
+                },
+                Style::new().italic().paint(item.get_type_name())
+            );
             stdout().flush().unwrap();
             let mut buffer = String::new();
             // TODO: Think of a way to not unwrap here, result?
@@ -205,7 +221,10 @@ impl Menu {
 
             let empty = buffer.chars().all(char::is_whitespace);
             if empty && !item.is_optional() && !item.has_value() {
-                println!("{}", Red.paint("This item is not optional, please enter a value."));
+                println!(
+                    "{}",
+                    Red.paint("This item is not optional, please enter a value.")
+                );
                 continue;
             } else if empty {
                 // We do not remove the default value
@@ -214,7 +233,10 @@ impl Menu {
             }
 
             if item.set(buffer).is_err() {
-                println!("{}", Red.paint("You have entered the wrong type of information."));
+                println!(
+                    "{}",
+                    Red.paint("You have entered the wrong type of information.")
+                );
                 continue;
             }
             i = i + 1;
